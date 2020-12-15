@@ -12,7 +12,7 @@ from continual_learner import ContinualLearner
 
 def train_cl(model, train_datasets, replay_mode="none", scenario="class",classes_per_task=None,iters=2000,batch_size=32,
              generator=None, gen_iters=0, gen_loss_cbs=list(), loss_cbs=list(), eval_cbs=list(), sample_cbs=list(),
-             use_exemplars=True, add_exemplars=False, metric_cbs=list()):
+             use_exemplars=True, add_exemplars=False, metric_cbs=list(), model_dir="models", param_stamp=""):
     '''Train a model (with a "train_a_batch" method) on multiple tasks, with replay-strategy specified by [replay_mode].
 
     [model]             <nn.Module> main model to optimize across all tasks
@@ -283,6 +283,10 @@ def train_cl(model, train_datasets, replay_mode="none", scenario="class",classes
         progress.close()
         if generator is not None:
             progress_gen.close()
+
+        model_file = f"{model_dir}/model-task{task}-{param_stamp}.pth"
+        torch.save(model, model_file)
+        print(f"Saved model to {model_file}")
 
         # EWC: estimate Fisher Information matrix (FIM) and update term for quadratic penalty
         if isinstance(model, ContinualLearner) and (model.ewc_lambda>0):
